@@ -36,10 +36,16 @@ function waitOnData() {
 
                 console.log(job);
 
-                playFile(job["fileLocation"], null, null, function() {
-
-                    process.nextTick(waitOnData);
-                });
+                if (job.fileLocation) {
+                    playFile(job.fileLocation, null, null, function() {
+                        process.nextTick(waitOnData);
+                    });
+                }
+                else if (job.uuid) {
+                    playFileRedis(job.uuid, null, null, function() {
+                        process.nextTick(waitOnData);
+                    });
+                }
             }
             catch (parseErro) {
                 console.log("error when parsing");
@@ -70,6 +76,79 @@ function postFile(fileLocation) {
     });
 }
 
+function postRedis(key) {
+    var redisProducer = redis.createClient();
+
+    redisProducer.get(key, function(err, res) {
+        if (err) {
+            console.log("ERROR: ");
+            console.log(err);
+        }
+        else {
+            console.log("Retrieved data using redis for " + key);
+
+            redisProducer.lpush("testList", JSON.stringify({
+                'uuid': key
+            }), function(err, res) {
+                if (err) {
+                    console.log("ERROR: ");
+                    console.log(err);
+                }
+                else {
+                    console.log("Added event: ");
+                    console.log(res);
+                }
+            });
+        }
+    });
+}
+
+var playFileRedis = function(uuid, open, flush, close) {
+    if (speakerAvailable) {
+        speakerAvailable = false;
+
+        var redisProducer = redis.createClient(null, null, { return_buffers: true });
+        try {
+            redisProducer.get(uuid, function(err, res) {
+                if (err) {
+                    console.log("ERROR: ");
+                    console.log(err);
+                }
+                else {
+                    console.log("Retrieved data to play using redis, uuid is " + uuid);
+
+                    var buffer = new Buffer(res, "binary");
+                    console.log(buffer);
+                    
+                    buffer.pipe(new lame.Decoder()).on('format', function(format) {
+                        var speaker = new Speaker(format);
+                        speaker.on('open', function() {
+                            console.log('on open');
+                            open();
+                        });
+                        speaker.on('flush', function() {
+                            console.log('on flush');
+                            flush();
+                        });
+                        speaker.on('close', function() {
+                            console.log('on close');
+                            speakerAvailable = true;
+                            close();
+                        });
+                        this.pipe(speaker);
+                    });
+                }
+            });
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+    else {
+        console.log('Cannot play file, speaker not available!');
+    }
+};
+
 var playFile = function(fileLocation, open, flush, close) {
     if (speakerAvailable) {
         speakerAvailable = false;
@@ -77,10 +156,11 @@ var playFile = function(fileLocation, open, flush, close) {
             var speaker = new Speaker(format);
             speaker.on('open', function() {
                 console.log('on open');
-
+                open();
             });
             speaker.on('flush', function() {
                 console.log('on flush');
+                flush();
             });
             speaker.on('close', function() {
                 console.log('on close');
@@ -96,3 +176,4 @@ var playFile = function(fileLocation, open, flush, close) {
 }
 
 exports.postFile = postFile;
+exports.postRedis = postRedis;

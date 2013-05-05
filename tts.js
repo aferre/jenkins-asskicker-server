@@ -5,7 +5,7 @@ var redis = require('redis');
 var ttsData = redis.createClient();
 var redisProducer = redis.createClient();
 
-var CACHE = false;
+var CACHE = true;
 
 redisProducer.on('connect', function() {
     console.log("CONNECTED: ");
@@ -56,21 +56,46 @@ function requestData(text, lang, done, error) {
             }
             else {
 
-                console.log("Persisting data");
-                redisProducer.lpush("ttsList", JSON.stringify({
-                    'lang': lang,
-                    'text': text
-                }), redis.print);
-                
-                var obj = [];
-                
-                obj.text = text;
-                obj.data = data;
-                
-                redisProducer.lpush("ttsData", obj, redis.print);
-                    
-                redisProducer.keys( '*' , redis.print);
-                done(buffer);
+                if (CACHE) {
+                    console.log("Persisting data");
+                    var key = "audio";
+
+                    //redis gives a value to error and exists                                                                                                                                                                                          
+                    redisProducer.exists(key + ':uuid', function(error, exists) {
+                        //if error is defined, then there was probably some
+                        //problem connecting to redis
+                        if (error) {
+                            console.log('ERROR: ' + error);
+                        }
+                        //otherwise exists will be available, and we can do something with it
+                        else if (!exists) {
+                            redisProducer.set(key + ':uuid', 0); //create the awesome key
+                        };
+                    });
+
+
+                    redisProducer.incr(key + ':uuid', function(err, uuid) {
+                        console.log(uuid);
+
+                        var bufferBinary = new Buffer(buffer, 'binary');
+                        redisProducer.set(key + ":data:tts:" + uuid, bufferBinary, redis.print);
+                        
+                        redisProducer.hset(key + ":list", uuid, JSON.stringify({
+                            'lang': lang,
+                            'text': text,
+                            'url': formated
+                        }), redis.print);
+
+                        redisProducer.hset(key + ":textList", text, uuid, redis.print);
+
+                        done(buffer, uuid);
+                    });
+
+                }
+                else {
+                    done(buffer);
+                }
+
             }
         });
     });
@@ -87,21 +112,14 @@ var retrieve = function(text, lang, retrievedTTScallback, onError) {
 
     console.log(text);
 
-    if (CACHE) {
-        var found = false;
-        if (found) {
+    var found = false;
 
-        }
-        else {
-            requestData(text, lang, function(data) {
-                retrievedTTScallback(text, lang, data);
-            },
-            onError);
-        }
+    if (found) {
+
     }
     else {
-        requestData(text, lang, function(data) {
-            retrievedTTScallback(text, lang, data);
+        requestData(text, lang, function(data, uuid) {
+            retrievedTTScallback(text, lang, data, uuid);
         },
         onError);
     }

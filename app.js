@@ -26,7 +26,6 @@ pubSubClient1.on("message", function(channel, message) {
     console.log("pubSubClient1 channel " + channel + ": " + message);
 });
 
-pubSubClient1.incr("did a thing");
 pubSubClient1.subscribe("a nice channel");
 
 function randomValue(data) {
@@ -44,7 +43,7 @@ function greetings(endCallback) {
     }
 }
 
-function retrievedTTS(text, lang, data) {
+function retrievedTTS(text, lang, data, redisUuid) {
     var rand = Math.floor(Math.random() * (10000000));
 
     fs.writeFile("/tmp/mp3files/" + rand + ".mp3", data, function(err) {
@@ -53,7 +52,11 @@ function retrievedTTS(text, lang, data) {
         }
         else {
             console.log("The file was saved!");
-            speakerQueue.postFile("/tmp/mp3files/" + rand + ".mp3");
+
+            if (redisUuid) speakerQueue.postRedis("audio:data:tts:" + redisUuid);
+            else {
+                speakerQueue.postFile("/tmp/mp3files/" + rand + ".mp3");
+            }
         }
     });
 }
