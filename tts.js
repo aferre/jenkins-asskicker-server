@@ -57,11 +57,12 @@ function requestData(text, lang, done, error) {
             else {
 
                 if (CACHE) {
-                    console.log("Persisting data");
                     var key = "audio";
 
+                    var rcli = redis.createClient();
+
                     //redis gives a value to error and exists                                                                                                                                                                                          
-                    redisProducer.exists(key + ':uuid', function(error, exists) {
+                    rcli.exists(key + ':uuid', function(error, exists) {
                         //if error is defined, then there was probably some
                         //problem connecting to redis
                         if (error) {
@@ -69,26 +70,35 @@ function requestData(text, lang, done, error) {
                         }
                         //otherwise exists will be available, and we can do something with it
                         else if (!exists) {
-                            redisProducer.set(key + ':uuid', 0); //create the awesome key
-                        };
+                            rcli.set(key + ':uuid', 0); //create the awesome key
+                        }
                     });
 
+                    console.log("Persisting audio data for " + text);
 
-                    redisProducer.incr(key + ':uuid', function(err, uuid) {
-                        console.log(uuid);
+                    rcli.incr(key + ':uuid', function(err, uuid) {
 
-                        var bufferBinary = new Buffer(buffer, 'binary');
-                        redisProducer.set(key + ":data:tts:" + uuid, bufferBinary, redis.print);
-                        
-                        redisProducer.hset(key + ":list", uuid, JSON.stringify({
-                            'lang': lang,
-                            'text': text,
-                            'url': formated
-                        }), redis.print);
+                        if (err) {
+                            console.log(err);
+                            error(err);
+                        }
+                        else {
+                            console.log("Using " + uuid + " as uuid for " + text);
 
-                        redisProducer.hset(key + ":textList", text, uuid, redis.print);
+                            var bufferBinary = new Buffer(buffer, 'binary');
+                            rcli.set(key + ":data:tts:" + uuid, bufferBinary, redis.print);
 
-                        done(buffer, uuid);
+                            rcli.hset(key + ":list", uuid, JSON.stringify({
+                                'lang': lang,
+                                'text': text,
+                                'url': formated
+                            }), redis.print);
+
+                            rcli.hset(key + ":textList", text, uuid, redis.print);
+                            rcli.quit();
+                            done(null, uuid);
+                        }
+
                     });
 
                 }
@@ -102,7 +112,7 @@ function requestData(text, lang, done, error) {
 
     req.on('error', function(e) {
         console.log('problem with request: ' + e.message);
-        error();
+        error(e);
     });
 
     req.end();
@@ -112,18 +122,40 @@ var retrieve = function(text, lang, retrievedTTScallback, onError) {
 
     console.log(text);
 
-    var found = false;
+    if (CACHE) {
 
-    if (found) {
-
+        redisProducer.hexists("audio:textList", text, function(err, reply) {
+            if (err) {
+                console.log("ERROR is " + err);
+            }
+            else if (reply) {
+                console.log("Does exists ( " + text + " )");
+                redisProducer.hget("audio:textList", text, function(err, reply) {
+                    if (err) {
+                        console.log("ERROR is " + err);
+                    }
+                    else if (reply) {
+                        console.log("Res is " + reply);
+                        retrievedTTScallback(text, lang, null, reply);
+                    }
+                });
+            }
+            else {
+                requestData(text, lang, function(data, uuid) {
+                    retrievedTTScallback(text, lang, data, uuid);
+                },
+                onError);
+            }
+        });
     }
     else {
+
         requestData(text, lang, function(data, uuid) {
             retrievedTTScallback(text, lang, data, uuid);
         },
         onError);
+
     }
 
-}
-
+};
 exports.retrieve = retrieve;

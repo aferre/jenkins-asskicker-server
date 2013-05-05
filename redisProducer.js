@@ -11,7 +11,6 @@ redisProducer.on('end',function(){
 	console.log("ENDED: ");	
 });
 
-
 redisProducer.lpush("testList",JSON.stringify({'data':'keydddd'}),function (err, res) {
 	if (err){
 		console.log("ERROR: ");

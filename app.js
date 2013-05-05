@@ -45,20 +45,18 @@ function greetings(endCallback) {
 
 function retrievedTTS(text, lang, data, redisUuid) {
     var rand = Math.floor(Math.random() * (10000000));
-
-    fs.writeFile("/tmp/mp3files/" + rand + ".mp3", data, function(err) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log("The file was saved!");
-
-            if (redisUuid) speakerQueue.postRedis("audio:data:tts:" + redisUuid);
+    if (redisUuid && data === null) speakerQueue.postRedis("audio:data:tts:" + redisUuid);
+    else {
+        fs.writeFile("/tmp/mp3files/" + rand + ".mp3", data, function(err) {
+            if (err) {
+                console.log(err);
+            }
             else {
+                console.log("The file was saved!");
                 speakerQueue.postFile("/tmp/mp3files/" + rand + ".mp3");
             }
-        }
-    });
+        });
+    }
 }
 
 /*
