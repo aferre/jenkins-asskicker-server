@@ -1,0 +1,13 @@
+{
+  "name": "jenkins-asskicker",
+  "description": "Title says it all",
+  "author": "Adrien Ferré <ferre.adrien@gmail.com>",
+  "dependencies": {
+     "redis-jsonify":"0.0.x",
+    "lame": "1.0.x",
+    "sleep":"1.1.x",
+    "speaker": "0.0.x",
+    "redis": "0.8.x"
+  },
+  "engine": "node >= 0.4.1"
+}
