@@ -107,7 +107,9 @@ var playFileRedis = function(uuid, open, flush, close) {
     if (speakerAvailable) {
         speakerAvailable = false;
 
-        var redisProducer = redis.createClient(null, null, { return_buffers: true });
+        var redisProducer = redis.createClient(null, null, {
+            return_buffers: true
+        });
         try {
             redisProducer.get(uuid, function(err, res) {
                 if (err) {
@@ -118,24 +120,17 @@ var playFileRedis = function(uuid, open, flush, close) {
                     console.log("Retrieved data to play using redis, uuid is " + uuid);
 
                     var buffer = new Buffer(res, "binary");
+
                     console.log(buffer);
-                    
-                    buffer.pipe(new lame.Decoder()).on('format', function(format) {
-                        var speaker = new Speaker(format);
-                        speaker.on('open', function() {
-                            console.log('on open');
-                            open();
-                        });
-                        speaker.on('flush', function() {
-                            console.log('on flush');
-                            flush();
-                        });
-                        speaker.on('close', function() {
-                            console.log('on close');
-                            speakerAvailable = true;
-                            close();
-                        });
-                        this.pipe(speaker);
+
+                    fs.writeFile("/tmp/mp3files/" + uuid + ".mp3", buffer, function(err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        else {
+                            console.log("The file was saved!");
+                            playFile("/tmp/mp3files/" + uuid + ".mp3", null, null, close, true);
+                        }
                     });
                 }
             });
@@ -149,23 +144,23 @@ var playFileRedis = function(uuid, open, flush, close) {
     }
 };
 
-var playFile = function(fileLocation, open, flush, close) {
-    if (speakerAvailable) {
+var playFile = function(fileLocation, open, flush, close, force) {
+    if (force || speakerAvailable) {
         speakerAvailable = false;
         fs.createReadStream(fileLocation).pipe(new lame.Decoder()).on('format', function(format) {
             var speaker = new Speaker(format);
             speaker.on('open', function() {
                 console.log('on open');
-                open();
+                if (open) open();
             });
             speaker.on('flush', function() {
                 console.log('on flush');
-                flush();
+                if (flush) flush();
             });
             speaker.on('close', function() {
                 console.log('on close');
                 speakerAvailable = true;
-                close();
+                if (close) close();
             });
             this.pipe(speaker);
         });
