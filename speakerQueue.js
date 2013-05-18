@@ -122,7 +122,9 @@ var playFileRedis = function(uuid, open, flush, close) {
                     var buffer = new Buffer(res, "binary");
 
                     console.log(buffer);
-
+                    var tempDir = fs.existsSync("/tmp/mp3files/");
+                    if (!tempDir)  fs.mkdirSync("/tmp/mp3files/");
+                   
                     fs.writeFile("/tmp/mp3files/" + uuid + ".mp3", buffer, function(err) {
                         if (err) {
                             console.log(err);
