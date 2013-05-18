@@ -60,6 +60,7 @@ function requestData(text, lang, done, error) {
                     var key = "audio";
 
                     var rcli = redis.createClient();
+                    var rclimulti = redis.createClient();
 
                     //redis gives a value to error and exists                                                                                                                                                                                          
                     rcli.exists(key + ':uuid', function(error, exists) {
@@ -72,11 +73,19 @@ function requestData(text, lang, done, error) {
                         else if (!exists) {
                             rcli.set(key + ':uuid', 0); //create the awesome key
                         }
+                        
+                        console.log("Persisting audio data for " + text);
+
+                    rclimulti.incr(key + ':mp3Number', function(err, uuid) {
+                        if (err) {
+                            console.log(err);
+                            error(err);
+                        }
+                        else {
+                            console.log("Now have " + uuid + " mp3 files.");
+                        }
                     });
-
-                    console.log("Persisting audio data for " + text);
-
-                    rcli.incr(key + ':uuid', function(err, uuid) {
+                    rclimulti.incr(key + ':uuid', function(err, uuid) {
 
                         if (err) {
                             console.log(err);
@@ -85,27 +94,37 @@ function requestData(text, lang, done, error) {
                         else {
                             console.log("Using " + uuid + " as uuid for " + text);
 
-                            var bufferBinary = new Buffer(buffer, 'binary');
-                            rcli.set(key + ":data:tts:" + uuid, bufferBinary, redis.print);
+                            var multi = rcli.multi();
 
-                            rcli.hset(key + ":list", uuid, JSON.stringify({
+                            var bufferBinary = new Buffer(buffer, 'binary');
+                            multi.set(key + ":data:tts:" + uuid, bufferBinary, redis.print);
+
+                            multi.hset(key + ":list", uuid, JSON.stringify({
                                 'lang': lang,
                                 'text': text,
                                 'url': formated
                             }), redis.print);
 
-                            rcli.hset(key + ":textList", text, uuid, redis.print);
-                            rcli.quit();
+                            multi.hset(key + ":textList", text, uuid, redis.print);
+                            multi.exec(function(err, replies) {
+                                console.log(replies); // 101, 2 
+                                multi.quit();
+                            });
+
                             done(null, uuid);
                         }
-
+                    });
+                    rclimulti.exec(function(err, replies) {
+                        console.log(replies); // 101, 2 
+                        rclimulti.quit();
+                    });
                     });
 
+                    
                 }
                 else {
                     done(buffer);
                 }
-
             }
         });
     });
