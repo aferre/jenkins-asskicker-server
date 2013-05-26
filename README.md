@@ -1,4 +1,4 @@
 jenkins-asskicker
 =================
 
-Node.js based sound server for kicking developers asses
+Node.js based sound server for kicking developers asses.

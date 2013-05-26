@@ -1,5 +1,5 @@
 /*
- *speaker
+ * Speaker js driver with a redis based event queue.
  */
 var Speaker = require('speaker');
 var lame = require('lame');
@@ -8,7 +8,7 @@ var log = require('sys').log;
 var speakerAvailable = true;
 var redis = require("redis");
 var fs = require('fs');
-
+var queueName = "testList";
 var redisConsumer = redis.createClient();
 
 redisConsumer.on('connect', function() {
@@ -24,7 +24,7 @@ redisConsumer.on('end', function() {
 });
 
 function waitOnData() {
-    redisConsumer.blpop("testList", "otherList", 0, function(err, res) {
+    redisConsumer.blpop(queueName, "otherList", 0, function(err, res) {
         if (err) {
             console.log("ERROR: ");
             console.log(err);
@@ -36,11 +36,17 @@ function waitOnData() {
 
                 console.log(job);
 
+                /*
+                 * If the file needs to be read from file.
+                 */
                 if (job.fileLocation) {
                     playFile(job.fileLocation, null, null, function() {
                         process.nextTick(waitOnData);
                     });
                 }
+                /*
+                 * If the file is in redis.
+                 */
                 else if (job.uuid) {
                     playFileRedis(job.uuid, null, null, function() {
                         process.nextTick(waitOnData);
@@ -58,10 +64,13 @@ function waitOnData() {
 
 waitOnData();
 
+/*
+ * Simple file retrieval and play. Provide the location of the file.
+ */
 function postFile(fileLocation) {
     var redisProducer = redis.createClient();
 
-    redisProducer.lpush("testList", JSON.stringify({
+    redisProducer.lpush(queueName, JSON.stringify({
         'dat': 'keydddd',
         'fileLocation': fileLocation
     }), function(err, res) {
@@ -76,6 +85,10 @@ function postFile(fileLocation) {
     });
 }
 
+/*
+ * Redis DB based file retrieval and play. Just pass along the uuid 
+ * of the related file to play.
+ */
 function postRedis(key) {
     var redisProducer = redis.createClient();
 
@@ -87,7 +100,7 @@ function postRedis(key) {
         else {
             console.log("Retrieved data using redis for " + key);
 
-            redisProducer.lpush("testList", JSON.stringify({
+            redisProducer.lpush(queueName, JSON.stringify({
                 'uuid': key
             }), function(err, res) {
                 if (err) {
@@ -103,18 +116,24 @@ function postRedis(key) {
     });
 }
 
-var playFileRedis = function(uuid, open, flush, close) {
+/*
+ * Play a file by first retrieveing it from a redis db instance.
+ */
+var playFileRedis = function(uuid, open, flush, close, error) {
+
     if (speakerAvailable) {
         speakerAvailable = false;
 
         var redisProducer = redis.createClient(null, null, {
             return_buffers: true
         });
+
         try {
             redisProducer.get(uuid, function(err, res) {
                 if (err) {
                     console.log("ERROR: ");
                     console.log(err);
+                    if (error) error(err);
                 }
                 else {
                     console.log("Retrieved data to play using redis, uuid is " + uuid);
@@ -123,15 +142,19 @@ var playFileRedis = function(uuid, open, flush, close) {
 
                     console.log(buffer);
                     var tempDir = fs.existsSync("/tmp/mp3files/");
-                    if (!tempDir)  fs.mkdirSync("/tmp/mp3files/");
-                   
+                    if (!tempDir) fs.mkdirSync("/tmp/mp3files/");
+
+                    /* 
+                     *   For now the file is written to disk. Could setup a rambased fs
+                     * to reduce I/O, expecially for SD cards.
+                     */
                     fs.writeFile("/tmp/mp3files/" + uuid + ".mp3", buffer, function(err) {
                         if (err) {
                             console.log(err);
+                            if (error) error(err);
                         }
                         else {
-                            console.log("The file was saved!");
-                            playFile("/tmp/mp3files/" + uuid + ".mp3", null, null, close, true);
+                            playFile("/tmp/mp3files/" + uuid + ".mp3", null, null, close, error, true);
                         }
                     });
                 }
@@ -139,14 +162,16 @@ var playFileRedis = function(uuid, open, flush, close) {
         }
         catch (err) {
             console.log(err);
+            if (error) error(err);
         }
     }
     else {
         console.log('Cannot play file, speaker not available!');
+        if (error) error('Cannot play file, speaker not available!');
     }
 };
 
-var playFile = function(fileLocation, open, flush, close, force) {
+var playFile = function(fileLocation, open, flush, close, error, force) {
     if (force || speakerAvailable) {
         speakerAvailable = false;
         fs.createReadStream(fileLocation).pipe(new lame.Decoder()).on('format', function(format) {
@@ -169,6 +194,7 @@ var playFile = function(fileLocation, open, flush, close, force) {
     }
     else {
         console.log('Cannot play file, speaker not available!');
+        if (error) error('Cannot play file, speaker not available!');
     }
 }
 

@@ -3,7 +3,7 @@
   "description": "Title says it all",
   "author": "Adrien Ferré <ferre.adrien@gmail.com>",
   "dependencies": {
-     "redis-jsonify":"0.0.x",
+    "redis-jsonify":"0.0.x",
     "lame": "1.0.x",
     "sleep":"1.1.x",
     "speaker": "0.0.x",
