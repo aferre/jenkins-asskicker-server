@@ -47,4 +47,11 @@ greetings();
 
 tts.retrieve('ouech ça va ou quoi, bien ou bien ma gueule? j\'vais te zlatané la tête tu vas voir ', 'fr', retrievedTTS);
 
-jenkins.start();
+function jenkinsNotif(notif, usersResponsible) {
+    tts.retrieve(usersResponsible[0] + ' tu me decois.', 'fr', retrievedTTS);
+}
+
+jenkins.start({
+    callback: jenkinsNotif,
+    port: 2222
+});
