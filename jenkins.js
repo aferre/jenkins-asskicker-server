@@ -8,7 +8,7 @@ var dgram = require('dgram');
 var jenkinsPort = 2222;
 var server = dgram.createSocket("udp4");
 var StringDecoder = require('string_decoder').StringDecoder;
-
+var opts;
 var redis = require("redis"),
     pubSubClient = redis.createClient();
 
@@ -35,6 +35,7 @@ server.on("listening", function() {
 });
 
 var start = function start(options) {
+    opts = options;
     //TODO handles options
     server.bind(jenkinsPort);
 };
@@ -68,8 +69,6 @@ function getUserToBlame(json) {
 
     var t = "http://jenkins.saic.int/job/" + jobName + "/lastFailedBuild/changes";
 
-
-
     var ur = url.parse(t, true);
 
     var formated = url.parse(url.format(ur), true);
@@ -99,7 +98,22 @@ function getUserToBlame(json) {
                 console.log("Retrieved empty data!");
             }
             else {
-                console.log(decoder.write(buffer));
+                var page = decoder.write(buffer);
+                console.log(page);
+                var regex = '/user/([^/"]+)';
+                var users = [];
+                var result = page.match(regex);
+                for (var i = 0; i < result.length; i++) {
+                    if (result[i].indexOf('/user') > -1) {
+
+                    }
+                    else {
+                        users.push(result[i]);
+                    }
+                }
+
+                console.log(users);
+                if (opts.callback) opts.callback(json, users);
             }
         });
     });
