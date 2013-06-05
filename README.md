@@ -1,6 +1,8 @@
 jenkins-asskicker
 =================
 
+[![Build Status](https://travis-ci.org/aferre/jenkins-asskicker.png)](https://travis-ci.org/aferre/jenkins-asskicker)
+
 Node.js based sound server for kicking developers asses.
 
 Install
