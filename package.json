@@ -22,7 +22,6 @@
     "grunt": "~0.3.14"
   },
   "scripts": {
-    "test": "grunt travis --verbose",
     "after_success": "grunt publish --verbose"
   },
   "optionalDependencies": {},
