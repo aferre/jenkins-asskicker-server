@@ -1,7 +1,15 @@
 {
   "name": "jenkins-asskicker",
   "description": "Title says it all",
+  "version": "0.0.1",
   "author": "Adrien Ferré <ferre.adrien@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aferre/jenkins-asskicker.git"
+  },
+  "keywords": [
+    "jenkins"
+  ],
   "dependencies": {
     "redis-jsonify":"0.0.x",
     "lame": "1.0.x",
@@ -9,5 +17,10 @@
     "speaker": "git://github.com/aferre/node-speaker.git#master",
     "redis": "0.8.x"
   },
-  "engine": "node >= 0.4.1"
+  "engine": "node >= 0.7",
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "bin": {
+    "jenkins-asskicker": "./app.js"
+  }
 }
