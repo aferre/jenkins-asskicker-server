@@ -18,7 +18,9 @@
     "redis": "0.8.x"
   },
   "engine": "node >= 0.7",
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt": "~0.3.14"
+  },
   "optionalDependencies": {},
   "bin": {
     "jenkins-asskicker": "./app.js"
