@@ -5,7 +5,7 @@
    - "0.7"
  before_install:
  - sudo npm cache clear; sudo apt-get update && sudo apt-get install -y redis-server libasound2-dev
- after_success: "grunt.registerMultiTask('publish', 'Publish the latest version of this plugin', function() {
+ after_success: grunt.registerMultiTask('publish', 'Publish the latest version of this plugin', function() {
  	var done = this.async(),
 			me = this,
 			npm = require('npm');
@@ -23,4 +23,4 @@
 				}
 			});
 		});
-	});"
+	});
