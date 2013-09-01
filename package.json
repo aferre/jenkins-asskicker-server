@@ -15,7 +15,10 @@
     "lame": "1.0.x",
     "sleep":"1.1.x",
     "speaker": "git://github.com/aferre/node-speaker.git#master",
-    "redis": "0.8.x"
+    "redis": "0.8.x",
+    "jenkins-api" : "0.1.x",
+    "nconf": "0.6.x",
+    "ws":"0.4.x"
   },
   "engine": "node >= 0.7",
   "devDependencies": {
