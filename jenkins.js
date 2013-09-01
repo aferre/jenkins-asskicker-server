@@ -5,12 +5,16 @@
 var http = require('http');
 var url = require('url');
 var dgram = require('dgram');
+var jenkinsapi = require('jenkins-api');
+var jenkins = jenkinsapi.init("http://localhost:8080/jenkins");
 var jenkinsPort = 2222;
 var server = dgram.createSocket("udp4");
 var StringDecoder = require('string_decoder').StringDecoder;
 var opts;
 var redis = require("redis"),
     pubSubClient = redis.createClient();
+
+var WebSocket = require('ws');
 
 function parse(msg) {
     var json = JSON.parse(msg);
@@ -38,6 +42,40 @@ var start = function start(options) {
     opts = options;
     //TODO handles options
     server.bind(jenkinsPort);
+    
+    if (opts.config === "undefined") return;
+   var url = 'ws://localhost';
+   url += ':' + opts.config.websocket.port;
+   url += '/jenkins';
+    var ws = new WebSocket(url);
+ws.on('open', function() {
+  console.log("soket opened");
+   });
+ws.on('message', function(data, flags) {
+    console.log(data);
+    console.log(flags);
+    // flags.binary will be set if a binary data is received
+    // flags.masked will be set if the data was masked
+});
+
+    jenkins.all_jobs(function(err, data) {
+  if (err){ return console.log(err); }
+  if (data === "undefined"){  return console.log("no data received"); };
+  if (data.length === 0){console.log("empty data");}
+  else {
+      for (var i = 0, len = data.length; i < len; i++) {
+          var job = data[i];
+console.log(job);
+jenkins.job_info(job.name, function(err, data) {
+  if (err){ return console.log(err); }
+  console.log(data);
+});
+
+}
+  }
+  console.log(data);
+});
+
 };
 
 var stop = function stop() {
