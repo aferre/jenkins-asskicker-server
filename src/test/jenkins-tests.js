@@ -8,7 +8,7 @@ var test1 = {
         "number": 1,
         "phase": "STARTED",
         "status": "FAILED",
-        "url": "job/prject/5",
+        "url": "job/project/5",
         "full_url": "http://ci.jenkins.org/job/project/5",
         "parameters": {
             "branch": "master"
