@@ -1,0 +1,11 @@
+{
+  "greetings": {
+    "familiar": "What's up?",
+    "polite": "Hi, how are you?",
+    "siri": "Hello, sexy"
+  },
+  "failure": {
+    "polite": "build failed.",
+    "familiar": "what the fuck."
+  }
+}
