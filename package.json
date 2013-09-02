@@ -1,11 +1,11 @@
 {
-  "name": "jenkins-asskicker",
+  "name": "jenkins-asskicker-server",
   "description": "Title says it all",
   "version": "0.0.1",
-  "author": "Adrien Ferré <ferre.adrien@gmail.com>",
+  "author": "Adrien Ferre <ferre.adrien@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/aferre/jenkins-asskicker.git"
+    "url": "git://github.com/aferre/jenkins-asskicker-server.git"
   },
   "keywords": [
     "jenkins"
@@ -18,7 +18,9 @@
     "redis": "0.8.x",
     "jenkins-api" : "0.1.x",
     "nconf": "0.6.x",
-    "ws":"0.4.x"
+    "ws":"0.4.x",
+    "xml2js":"0.2.x",
+    "string":"1.5.x"
   },
   "engine": "node >= 0.7",
   "devDependencies": {
