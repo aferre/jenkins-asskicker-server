@@ -2,11 +2,19 @@ var fs = require('fs');
 var speakerQueue = require('./speakerQueue');
 var tts = require('./tts');
 var jenkins = require('./jenkins');
+var jenkinsDiscover = require('./jenkins-discover');
+var jenkinsWs = require('./jenkins.ws');
 var nconf = require('nconf');
-  nconf.argv()
-      .env()
-    .file({ file: 'dictionary.json' }).file('config.json' );
-  
+nconf.argv().env();
+nconf.add('config', {
+    type: 'file',
+    file: 'conf/config.json'
+})
+nconf.add('dictionary', {
+    type: 'file',
+    file: 'conf/dictionary.json'
+})
+nconf.load();
 var grettingsDictionary = nconf.get("greetings");
 
 function randomValue(data) {
@@ -15,7 +23,7 @@ function randomValue(data) {
 }
 
 function greetings(endCallback) {
-    if (! grettingsDictionary || grettingsDictionary === 'undefined')return;
+    if (!grettingsDictionary || grettingsDictionary === "undefined") return;
     var rand = randomValue(grettingsDictionary);
     if (endCallback) {
         tts.retrieve(rand, 'en', endCallback);
@@ -41,20 +49,36 @@ function retrievedTTS(text, lang, data, redisUuid) {
     }
 }
 
+function jenkinsStatusChanged(jenkinsId, status) {
+    var S = require('string');
+    var str = S(''+jenkinsId.toString()).left(5).s;
+    tts.retrieve('Jenkins instance ' + str + ' is ' + status + '!' , 'en', retrievedTTS);
+}
 /*
  *
  */
 
+/*greetings();
 greetings();
-
-tts.retrieve('ouech ça va ou quoi, bien ou bien ma gueule? j\'vais te zlatané la tête tu vas voir ', 'fr', retrievedTTS);
+greetings();
+greetings();
+*/
+//tts.retrieve('ouech ça va ou quoi, bien ou bien ma gueule? j\'vais te zlatané la tête tu vas voir ', 'fr', retrievedTTS);
 
 function jenkinsNotif(notif, usersResponsible) {
     tts.retrieve(usersResponsible[0] + ' tu me decois.', 'fr', retrievedTTS);
 }
+
 var jenkinsConfig = nconf.get('jenkins');
 
 jenkins.start({
     callback: jenkinsNotif,
     config: jenkinsConfig
+});
+jenkinsWs.start({
+    callback: jenkinsNotif,
+    config: jenkinsConfig
+});
+jenkinsDiscover.start({
+    jenkinsStatusChanged:jenkinsStatusChanged
 });
