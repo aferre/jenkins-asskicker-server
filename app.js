@@ -1,19 +1,18 @@
 var fs = require('fs');
 var speakerQueue = require('./speakerQueue');
 var tts = require('./tts');
-var jenkins = require('./jenkins');
 var jenkinsDiscover = require('./jenkins-discover');
-var jenkinsWs = require('./jenkins.ws');
+var jenkinsListener = require('./jenkins-listener');
 var nconf = require('nconf');
 nconf.argv().env();
 nconf.add('config', {
     type: 'file',
     file: 'conf/config.json'
-})
+});
 nconf.add('dictionary', {
     type: 'file',
     file: 'conf/dictionary.json'
-})
+});
 nconf.load();
 var grettingsDictionary = nconf.get("greetings");
 
@@ -51,8 +50,8 @@ function retrievedTTS(text, lang, data, redisUuid) {
 
 function jenkinsStatusChanged(jenkinsId, status) {
     var S = require('string');
-    var str = S(''+jenkinsId.toString()).left(5).s;
-    tts.retrieve('Jenkins instance ' + str + ' is ' + status + '!' , 'en', retrievedTTS);
+    var str = S('' + jenkinsId.toString()).left(5).s;
+    tts.retrieve('Jenkins instance ' + str + ' is ' + status + '!', 'en', retrievedTTS);
 }
 /*
  *
@@ -71,14 +70,11 @@ function jenkinsNotif(notif, usersResponsible) {
 
 var jenkinsConfig = nconf.get('jenkins');
 
-jenkins.start({
+jenkinsListener.start({
     callback: jenkinsNotif,
     config: jenkinsConfig
 });
-jenkinsWs.start({
-    callback: jenkinsNotif,
-    config: jenkinsConfig
-});
+
 jenkinsDiscover.start({
-    jenkinsStatusChanged:jenkinsStatusChanged
+    jenkinsStatusChanged: jenkinsStatusChanged
 });

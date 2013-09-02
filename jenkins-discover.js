@@ -3,24 +3,9 @@ var opts;
 
 var start = function start(options) {
     opts = options;
-
+    broadcast();
     setInterval(function() {
-        sendUdp('Long live Jenkins!', '255.255.255.255', 33848, function(err, data) {
-            if (err) console.log(err);
-            else {
-                var parseString = require('xml2js').parseString;
-                parseString(data, function(err, result) {
-                    if (err) {
-
-                    }
-                    else {
-                        if (result) {
-                            parseJenkins(result);
-                        }
-                    }
-                });
-            }
-        });
+        broadcast();
     }, opts.pingInterval || 10000);
 };
 
@@ -28,7 +13,26 @@ var stop = function stop() {
     //TODO handles options
 };
 
-function sendUdp(message, host, port, cb) {
+function broadcast() {
+    sendBroadcast('Long live Jenkins!', '255.255.255.255', 33848, function(err, data) {
+        if (err) console.log(err);
+        else {
+            var parseString = require('xml2js').parseString;
+            parseString(data, function(err, result) {
+                if (err) {
+
+                }
+                else {
+                    if (result) {
+                        parseJenkins(result);
+                    }
+                }
+            });
+        }
+    });
+}
+
+function sendBroadcast(message, host, port, cb) {
     var socket = require('dgram').createSocket('udp4'),
         buffer = new Buffer(message);
 
@@ -61,7 +65,7 @@ function _onJenkinsUp(jsonData) {
             if (!reply || reply === 0) {
                 // jenkins instance was never seen or was not up, notify
                 rcli.set('jenkins:uuids:' + jsonData["server-id"][0], 1);
-                opts.jenkinsStatusChanged(jsonData["server-id"][0],'up');
+                opts.jenkinsStatusChanged(jsonData["server-id"][0], 'up');
             }
         });
     }
@@ -74,7 +78,7 @@ function _onJenkinsDown(jsonData) {
             if (!reply || reply === 1) {
                 // jenkins instance was never seen or was up, notify
                 rcli.set('jenkins:uuids:' + jsonData["server-id"][0], 0);
-                opts.jenkinsStatusChanged(jsonData["server-id"][0],'down');
+                opts.jenkinsStatusChanged(jsonData["server-id"][0], 'down');
             }
         });
     }

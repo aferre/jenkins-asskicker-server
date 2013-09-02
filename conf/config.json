@@ -2,6 +2,9 @@
   "jenkins": {
     "websocket": {
       "port": 10000
+    },
+    "udp": {
+      "port": 10000
     }
   },
   "redis": {
