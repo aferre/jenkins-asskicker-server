@@ -6,3 +6,4 @@
  before_install:
  - sudo npm cache clear; sudo apt-get update && sudo apt-get install -y redis-server libasound2-dev libavahi-compat-libdnssd-dev
  after_success: grunt publish --verbose
+secure: "ZvnJyObM/hQK+gwrnjg2w1zhx9gFHvEJlj9Js1mWNMCKKWnnSbCTVFpeJ2qnGmR6fOIhFpQ23q8Qmf2R05q7bxFvPojzURgznzsKuNcbqpqOT/LuTSwsq1+Yii9aW/ExhiTd0LGmYlk+OQzF0sbRSCUHCn11xkKV7TQrV9ULkUY="
