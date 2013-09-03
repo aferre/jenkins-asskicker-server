@@ -1,12 +1,26 @@
 /* jslint node: true */
 "use strict";
-//var discoveredInstances = {};
 var opts;
+var HashMap = require('hashmap').HashMap;
+var discoveredInstances = new HashMap();
 
 var start = function start(options) {
     opts = options;
     broadcast();
     setInterval(function () {
+
+        var now = new Date();
+        discoveredInstances.forEach(function (value, key) {
+            console.log(key + " : " + value);
+            if (value.lastUp) {
+                var lastUp = new Date(value.lastUp);
+                if (now - lastUp > 20000) {
+
+                    console.log("Server " + value.hudson["server-id"][0] + " is down.");
+                    opts.onJenkinsDownCb(value.hudson);
+                }
+            }
+        });
         broadcast();
     }, opts.pingInterval || 10000);
 };
@@ -58,6 +72,8 @@ function parseJenkins(jsonData) {
     var servId = jsonData.hudson["server-id"][0];
     if (servId) {
         console.log("Server " + servId + " is up.");
+        jsonData.lastUp = new Date();
+        discoveredInstances.set(servId, jsonData);
         opts.onJenkinsUpCb(jsonData.hudson);
     }
 }

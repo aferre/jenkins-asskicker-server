@@ -137,5 +137,5 @@ jenkinsListener.start({
 
 jenkinsDiscover.start({
     jenkinsStatusChanged: jenkinsStatusChanged,
-    mdns: "test"
+    udp: "test"
 });
