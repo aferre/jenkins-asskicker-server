@@ -13,6 +13,7 @@ Install
 $ sudo apt-get install redis-server libasound2-dev
 $ git clone https://github.com/aferre/jenkins-asskicker-server.git
 $ cd jenkins-asskicker-server
+$ npm install
 $ node app.js
 
 Usage
