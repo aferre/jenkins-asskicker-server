@@ -16,6 +16,11 @@ $ cd jenkins-asskicker-server
 $ npm install
 $ node app.js
 
+or using the npm modules in the npm registry
+
+$ sudo apt-get install redis-server libasound2-dev
+$ npm install -g jenkins-asskicker-server
+
 Usage
 -----
 
