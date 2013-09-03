@@ -6,16 +6,21 @@ var tts = require('./tts');
 var jenkinsDiscover = require('./jenkins-discover');
 var jenkinsListener = require('./jenkins-listener');
 var nconf = require('nconf');
+
 nconf.argv().env();
+
 nconf.add('config', {
     type: 'file',
     file: 'conf/config.json'
 });
+
 nconf.add('dictionary', {
     type: 'file',
     file: 'conf/dictionary.json'
 });
+
 nconf.load();
+
 var grettingsDictionary = nconf.get("greetings");
 
 function randomValue(data) {
