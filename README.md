@@ -2,6 +2,7 @@ jenkins-asskicker-server
 ========================
 
 [![Build Status](https://travis-ci.org/aferre/jenkins-asskicker-server.png?branch=master)](https://travis-ci.org/aferre/jenkins-asskicker-server)
+[![NPM version](https://badge.fury.io/js/jenkins-asskicker-server.png)](http://badge.fury.io/js/jenkins-asskicker-server)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/aferre/jenkins-asskicker-server/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Node.js based sound server for kicking developers asses.
