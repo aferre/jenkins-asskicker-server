@@ -1,7 +1,7 @@
 {
   "name": "jenkins-asskicker-server",
   "description": "Title says it all",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Adrien Ferre <ferre.adrien@gmail.com>",
   "repository": {
     "type": "git",
