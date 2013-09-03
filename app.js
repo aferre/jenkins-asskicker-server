@@ -40,7 +40,7 @@ function advertise() {
         var txt_record = {};
         txt_record.location = desc.location;
         txt_record.users = JSON.stringify(desc.users);
-        var ad = mdns.createAdvertisement(mdns.tcp('jenkins-kicker'), 4321, {
+        var ad = mdns.createAdvertisement(mdns.tcp('kicker-jenkins'), 4321, {
             txtRecord: txt_record,
             networkInterface: "eth2"
         });
@@ -115,13 +115,13 @@ function jenkinsNotif(notif, usersResponsible) {
 var browser = mdns.createBrowser(mdns.tcp('jenkins-kicker'));
 
 browser.on('serviceUp', function(service) {
-    console.log("service up: ", service);
+//    console.log("service up: ", service);
 
-    console.log("service up: ", JSON.parse(service.txtRecord.users));
+  //  console.log("service up: ", JSON.parse(service.txtRecord.users));
 });
 
 browser.on('serviceDown', function(service) {
-    console.log("service down: ", service);
+    //console.log("service down: ", service);
 });
 
 browser.start();
@@ -136,5 +136,6 @@ jenkinsListener.start({
 });
 
 jenkinsDiscover.start({
-    jenkinsStatusChanged: jenkinsStatusChanged
+    jenkinsStatusChanged: jenkinsStatusChanged,
+    mdns: "test"
 });
