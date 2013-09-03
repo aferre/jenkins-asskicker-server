@@ -9,8 +9,6 @@ var jenkinsPort = 2222;
 var server = dgram.createSocket("udp4");
 var StringDecoder = require('string_decoder').StringDecoder;
 var opts;
-var redis = require("redis"),
-    pubSubClient = redis.createClient();
 
 function parse(msg) {
     var json = JSON.parse(msg);
