@@ -10,7 +10,7 @@ Node.js based sound server for kicking developers asses.
 Install
 -------
 
-$ sudo apt-get install redis-server libasound2-dev
+$ sudo apt-get install redis-server libasound2-dev libavahi-compat-libdnssd-dev
 $ git clone https://github.com/aferre/jenkins-asskicker-server.git
 $ cd jenkins-asskicker-server
 $ npm install

@@ -20,7 +20,8 @@
     "nconf": "0.6.x",
     "ws":"0.4.x",
     "xml2js":"0.2.x",
-    "string":"1.5.x"
+    "string":"1.5.x",
+    "mdns":"1.1.x"
   },
   "engine": "node >= 0.7",
   "devDependencies": {

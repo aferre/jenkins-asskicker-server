@@ -6,6 +6,8 @@ var tts = require('./tts');
 var jenkinsDiscover = require('./jenkins-discover');
 var jenkinsListener = require('./jenkins-listener');
 var nconf = require('nconf');
+var mdns = require('mdns');
+
 
 nconf.argv().env();
 
@@ -20,6 +22,35 @@ nconf.add('dictionary', {
 });
 
 nconf.load();
+
+function advertise() {
+    try {
+        var desc = nconf.get("desc");
+        var txt_record = {};
+        txt_record.location = desc.location;
+        txt_record.users = JSON.stringify(desc.users);
+        var ad = mdns.createAdvertisement(mdns.tcp('jenkins-kicker'), 4321, {
+            txtRecord: txt_record,
+            networkInterface: "eth2"
+        });
+        ad.on('error', handleAdvertisementError);
+        ad.start();
+    }
+    catch (ex) {
+        handleAdvertisementError(ex);
+    }
+}
+
+function handleAdvertisementError(error) {
+    switch (error.errorCode) {
+    case mdns.kDNSServiceErr_Unknown:
+        console.warn(error);
+        setTimeout(advertise, 5000);
+        break;
+    default:
+        throw error;
+    }
+}
 
 var grettingsDictionary = nconf.get("greetings");
 
@@ -74,6 +105,23 @@ greetings();
 function jenkinsNotif(notif, usersResponsible) {
     tts.retrieve(usersResponsible[0] + ' tu me decois.', 'fr', retrievedTTS);
 }
+
+
+var browser = mdns.createBrowser(mdns.tcp('jenkins-kicker'));
+
+browser.on('serviceUp', function(service) {
+    console.log("service up: ", service);
+    
+    console.log("service up: ", JSON.parse(service.txtRecord.users));
+});
+
+browser.on('serviceDown', function(service) {
+    console.log("service down: ", service);
+});
+
+browser.start();
+
+advertise();
 
 var jenkinsConfig = nconf.get('jenkins');
 

@@ -7,6 +7,14 @@
       "port": 10000
     }
   },
+  "desc": {
+      "location": "lab1",
+      "users":[
+{ "firstName":"John" , "lastName":"Doe" }, 
+{ "firstName":"Anna" , "lastName":"Smith" }, 
+{ "firstName":"Peter" , "lastName": "Jones" }
+]
+  },
   "redis": {
     "host": "127.0.0.1",
     "port": 5984
