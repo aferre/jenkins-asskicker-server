@@ -24,7 +24,7 @@
   },
   "engine": "node >= 0.7",
   "devDependencies": {
-    "grunt": "~0.3.14"
+    "grunt": "~0.4.x"
   },
   "scripts": {
     "after_success": "grunt publish --verbose"
