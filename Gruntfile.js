@@ -53,7 +53,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['jshint']);
 
   // Travis CI task.
-  grunt.registerTask('travis', 'jshint qunit');
+  grunt.registerTask('travis', 'jshint');
   
   grunt.loadNpmTasks('grunt-release');
 
