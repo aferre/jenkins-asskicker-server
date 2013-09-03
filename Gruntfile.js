@@ -9,12 +9,12 @@ module.exports = function(grunt) {
         curly: true,
         eqeqeq: true,
         immed: true,
-        latedef: true,
+        latedef: false,
         newcap: true,
         noarg: true,
         sub: true,
         undef: true,
-        unused: true,
+        unused: false,
         boss: true,
         eqnull: true,
         globals: {
@@ -25,12 +25,13 @@ module.exports = function(grunt) {
         src: 'Gruntfile.js'
       },
       lib_test: {
-        src: ['lib/**/*.js', 'test/**/*.js']
+        src: ['*.js', 'src/test/**/*.js']
       }
     },
     nodeunit: {
       files: ['test/**/*_test.js']
     },
+    publish: {},
     watch: {
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>',
@@ -49,30 +50,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'nodeunit']);
+  grunt.registerTask('default', ['jshint']);
 
   // Travis CI task.
-  grunt.registerTask('travis', 'lint qunit');
+  grunt.registerTask('travis', 'jshint qunit');
   
-  // Npm deploy task.
-   grunt.registerMultiTask('publish', 'Publish the latest version of this plugin', function() {
-  	var done = this.async(),
-			me = this,
-			npm = require('npm');
-		npm.load({}, function(err) {
-			npm.registry.adduser(me.data.username, me.data.password, me.data.email, function(err) {
-				if (err) {
-					console.log(err);
-					done(false);
-				} else {
-					npm.config.set("email", me.data.email, "user");
-					npm.commands.publish([], function(err) {
-						console.log(err || "Published to registry");
-						done(!err);
-					});
-				}
-			});
-		});
-	});
+  grunt.loadNpmTasks('grunt-release');
 
 };

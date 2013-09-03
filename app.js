@@ -1,4 +1,5 @@
-'use strict';
+/* jslint node: true */
+"use strict";
 
 var fs = require('fs');
 var speakerQueue = require('./speakerQueue');
@@ -7,7 +8,6 @@ var jenkinsDiscover = require('./jenkins-discover');
 var jenkinsListener = require('./jenkins-listener');
 var nconf = require('nconf');
 var mdns = require('mdns');
-
 
 nconf.argv().env();
 
@@ -22,6 +22,17 @@ nconf.add('dictionary', {
 });
 
 nconf.load();
+
+function handleAdvertisementError(error) {
+    switch (error.errorCode) {
+    case mdns.kDNSServiceErr_Unknown:
+        console.warn(error);
+        setTimeout(advertise, 5000);
+        break;
+    default:
+        throw error;
+    }
+}
 
 function advertise() {
     try {
@@ -41,38 +52,13 @@ function advertise() {
     }
 }
 
-function handleAdvertisementError(error) {
-    switch (error.errorCode) {
-    case mdns.kDNSServiceErr_Unknown:
-        console.warn(error);
-        setTimeout(advertise, 5000);
-        break;
-    default:
-        throw error;
-    }
-}
-
 var grettingsDictionary = nconf.get("greetings");
-
-function randomValue(data) {
-    var rand = Math.floor(Math.random() * (Object.keys(data).length));
-    return data[Object.keys(data)[rand]];
-}
-
-function greetings(endCallback) {
-    if (!grettingsDictionary || grettingsDictionary === "undefined") return;
-    var rand = randomValue(grettingsDictionary);
-    if (endCallback) {
-        tts.retrieve(rand, 'en', endCallback);
-    }
-    else {
-        tts.retrieve(rand, 'en', retrievedTTS);
-    }
-}
 
 function retrievedTTS(text, lang, data, redisUuid) {
     var rand = Math.floor(Math.random() * (10000000));
-    if (redisUuid && data === null) speakerQueue.postRedis("audio:data:tts:" + redisUuid);
+    if (redisUuid && data === null) {
+        speakerQueue.postRedis("audio:data:tts:" + redisUuid);
+    }
     else {
         fs.writeFile("/tmp/mp3files/" + rand + ".mp3", data, function(err) {
             if (err) {
@@ -85,6 +71,25 @@ function retrievedTTS(text, lang, data, redisUuid) {
         });
     }
 }
+
+function randomValue(data) {
+    var rand = Math.floor(Math.random() * (Object.keys(data).length));
+    return data[Object.keys(data)[rand]];
+}
+
+function greetings(endCallback) {
+    if (!grettingsDictionary || grettingsDictionary === "undefined") {
+        return;
+    }
+    var rand = randomValue(grettingsDictionary);
+    if (endCallback) {
+        tts.retrieve(rand, 'en', endCallback);
+    }
+    else {
+        tts.retrieve(rand, 'en', retrievedTTS);
+    }
+}
+
 
 function jenkinsStatusChanged(jenkinsId, status) {
     var S = require('string');
@@ -111,7 +116,7 @@ var browser = mdns.createBrowser(mdns.tcp('jenkins-kicker'));
 
 browser.on('serviceUp', function(service) {
     console.log("service up: ", service);
-    
+
     console.log("service up: ", JSON.parse(service.txtRecord.users));
 });
 

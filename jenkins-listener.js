@@ -1,3 +1,5 @@
+/* jslint node: true */
+"use strict";
 /*
  * Jenkins abstract listener. Should offer relted functions/callbacks 
  * to abstract multiple listeners implementations. Available jenkins plugins are:

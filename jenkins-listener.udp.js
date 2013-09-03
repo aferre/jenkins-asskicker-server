@@ -1,3 +1,5 @@
+/* jslint node: true */
+"use strict";
 /*
  * Jenkins udp notification listener. 
  * Need to use the notifier plugin available in the jenkins plugins list.
@@ -111,7 +113,9 @@ function getUserToBlame(json) {
                 }
 
                 console.log(users);
-                if (opts.callback) opts.callback(json, users);
+                if (opts.callback) {
+                    opts.callback(json, users);
+                }
             }
         });
     });

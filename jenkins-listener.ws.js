@@ -1,16 +1,15 @@
+/* jslint node: true */
+"use strict";
 /*
  * Jenkins udp notification listener. 
  * Need to use the notifier plugin available in the jenkins plugins list.
  */
 var http = require('http');
 var url = require('url');
-var dgram = require('dgram');
 var jenkinsapi = require('jenkins-api');
 var jenkins = jenkinsapi.init("http://localhost:8080/jenkins");
 var StringDecoder = require('string_decoder').StringDecoder;
 var opts;
-var redis = require("redis"),
-    pubSubClient = redis.createClient();
 
 var WebSocket = require('ws');
 
@@ -22,7 +21,9 @@ function parse(msg) {
 var start = function start(options) {
     opts = options;
     //TODO handles options
-    if (opts.config === "undefined") return;
+    if (opts.config === "undefined") {
+        return;
+    }
     var url = 'ws://localhost';
     url += ':' + opts.config.websocket.port;
     url += '/jenkins';
@@ -30,7 +31,7 @@ var start = function start(options) {
     ws.on('open', function() {
         console.log("soket opened");
     });
-     ws.on('error', function() {
+    ws.on('error', function() {
         console.log("soket errored");
     });
     ws.on('message', function(data, flags) {
@@ -46,7 +47,7 @@ var start = function start(options) {
         }
         if (data === "undefined") {
             return console.log("no data received");
-        };
+        }
         if (data.length === 0) {
             console.log("empty data");
         }
@@ -54,12 +55,12 @@ var start = function start(options) {
             for (var i = 0, len = data.length; i < len; i++) {
                 var job = data[i];
                 console.log(job);
-                jenkins.job_info(job.name, function(err, data) {
+                /*jenkins.job_info(job.name, function(err, data) {
                     if (err) {
                         return console.log(err);
                     }
                     console.log(data);
-                });
+                });*/
 
             }
         }
@@ -140,7 +141,9 @@ function getUserToBlame(json) {
                 }
 
                 console.log(users);
-                if (opts.callback) opts.callback(json, users);
+                if (opts.callback) {
+                    opts.callback(json, users);
+                }
             }
         });
     });

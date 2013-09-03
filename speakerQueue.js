@@ -1,10 +1,10 @@
+/* jslint node: true */
+"use strict";
 /*
  * Speaker js driver with a redis based event queue.
  */
 var Speaker = require('speaker');
 var lame = require('lame');
-
-var log = require('sys').log;
 var speakerAvailable = true;
 var redis = require("redis");
 var fs = require('fs');
@@ -133,7 +133,9 @@ var playFileRedis = function(uuid, open, flush, close, error) {
                 if (err) {
                     console.log("ERROR: ");
                     console.log(err);
-                    if (error) error(err);
+                    if (error) {
+                        error(err);
+                    }
                 }
                 else {
                     console.log("Retrieved data to play using redis, uuid is " + uuid);
@@ -142,7 +144,9 @@ var playFileRedis = function(uuid, open, flush, close, error) {
 
                     console.log(buffer);
                     var tempDir = fs.existsSync("/tmp/mp3files/");
-                    if (!tempDir) fs.mkdirSync("/tmp/mp3files/");
+                    if (!tempDir) {
+                        fs.mkdirSync("/tmp/mp3files/");
+                    }
 
                     /* 
                      *   For now the file is written to disk. Could setup a rambased fs
@@ -151,7 +155,9 @@ var playFileRedis = function(uuid, open, flush, close, error) {
                     fs.writeFile("/tmp/mp3files/" + uuid + ".mp3", buffer, function(err) {
                         if (err) {
                             console.log(err);
-                            if (error) error(err);
+                            if (error) {
+                                error(err);
+                            }
                         }
                         else {
                             playFile("/tmp/mp3files/" + uuid + ".mp3", null, null, close, error, true);
@@ -162,12 +168,16 @@ var playFileRedis = function(uuid, open, flush, close, error) {
         }
         catch (err) {
             console.log(err);
-            if (error) error(err);
+            if (error) {
+                error(err);
+            }
         }
     }
     else {
         console.log('Cannot play file, speaker not available!');
-        if (error) error('Cannot play file, speaker not available!');
+        if (error) {
+            error('Cannot play file, speaker not available!');
+        }
     }
 };
 
@@ -178,25 +188,33 @@ var playFile = function(fileLocation, open, flush, close, error, force) {
             var speaker = new Speaker(format);
             speaker.on('open', function() {
                 console.log('on open');
-                if (open) open();
+                if (open) {
+                    open();
+                }
             });
             speaker.on('flush', function() {
                 console.log('on flush');
-                if (flush) flush();
+                if (flush) {
+                    flush();
+                }
             });
             speaker.on('close', function() {
                 console.log('on close');
                 speakerAvailable = true;
-                if (close) close();
+                if (close) {
+                    close();
+                }
             });
             this.pipe(speaker);
         });
     }
     else {
         console.log('Cannot play file, speaker not available!');
-        if (error) error('Cannot play file, speaker not available!');
+        if (error) {
+            error('Cannot play file, speaker not available!');
+        }
     }
-}
+};
 
 exports.postFile = postFile;
 exports.postRedis = postRedis;
