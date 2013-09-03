@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var speakerQueue = require('./speakerQueue');
 var tts = require('./tts');
