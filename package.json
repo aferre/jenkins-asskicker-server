@@ -31,6 +31,6 @@
   },
   "optionalDependencies": {},
   "bin": {
-    "jenkins-asskicker": "./app.js"
+    "jenkins-asskicker-server": "./bin/jenkins-asskicker-server.js"
   }
 }
