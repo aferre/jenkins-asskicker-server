@@ -35,11 +35,12 @@ var stop = function stop() {
 var jenUp = function _onJenkinsUp(jsonData) {
     if (jsonData) {
         var rcli = require('redis').createClient();
-         var srvId = jsonData["server-id"][0];
-        rcli.get('jenkins:uuids:' + srvId, function (err, reply) {
-            if (!reply || reply === 0) {
+        var srvId = jsonData["server-id"][0];
+        rcli.get('jenkins:uuids:' + srvId, function(err, reply) {
+            if (!reply || reply === "0") {
                 // jenkins instance was never seen or was not up, notify
-                rcli.set('jenkins:uuids:' + srvId, 1);
+                var rcli2 = require('redis').createClient();
+                rcli2.set('jenkins:uuids:' + srvId, 1);
                 opts.jenkinsStatusChanged(srvId, 'up');
             }
         });
@@ -50,10 +51,11 @@ var jenDown = function _onJenkinsDown(jsonData) {
     if (jsonData) {
         var rcli = require('redis').createClient();
         var srvId = jsonData["server-id"][0];
-        rcli.get('jenkins:uuids:' + srvId, function (err, reply) {
-            if (!reply || reply === 1) {
+        rcli.get('jenkins:uuids:' + srvId, function(err, reply) {
+            if (!reply || reply === "1") {
                 // jenkins instance was never seen or was up, notify
-                rcli.set('jenkins:uuids:' + srvId, 0);
+                var rcli2 = require('redis').createClient();
+                rcli2.set('jenkins:uuids:' + srvId, 0);
                 opts.jenkinsStatusChanged(srvId, 'down');
             }
         });
