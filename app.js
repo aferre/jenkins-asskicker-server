@@ -150,5 +150,6 @@ jenkinsDiscover.start({
     jenkinsStatusChanged: jenkinsStatusChanged,
     udp: "test",
     initDate: new Date(),
-    notifyUponRestart: nconf.get("jenkins").notifyUponRestart || false
+    notifyUponRestart: nconf.get("jenkins").notifyUponRestart || false,
+    interval : nconf.get("jenkins").udp.interval
 });
