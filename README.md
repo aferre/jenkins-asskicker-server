@@ -10,26 +10,50 @@ Node.js based sound server for kicking developers asses.
 Install
 -------
 
-$ sudo apt-get install redis-server libasound2-dev libavahi-compat-libdnssd-dev
-$ git clone https://github.com/aferre/jenkins-asskicker-server.git
-$ cd jenkins-asskicker-server
-$ npm install
-$ node app.js
+    sudo apt-get install redis-server libasound2-dev libavahi-compat-libdnssd-dev
+    git clone https://github.com/aferre/jenkins-asskicker-server.git
+    cd jenkins-asskicker-server
+    npm install
+    node app.js
 
 or using the npm modules in the npm registry
 
-$ sudo apt-get install redis-server libasound2-dev
-$ npm install -g jenkins-asskicker-server
+    sudo apt-get install redis-server libasound2-dev
+    npm install -g jenkins-asskicker-server
+    jenkins-asskicker-server
 
 Usage
 -----
 
-For now, you cannot do much... 
+The jenkins instances will be automagically discovered on the local network using either mdns or udp broadcasting. 
+Both of these are provided in Jenkins out-of-the-box. Once jenkins instances are discovered (and they are up), 
+all jobs will be monitored using either udp (install jenkins plugin https://wiki.jenkins-ci.org/display/JENKINS/Notification+Plugin 
+and see the configuration section below) or websocket (install jenkins plugin 
+https://wiki.jenkins-ci.org/display/JENKINS/Websocket+Plugin and see the configuration section below).
+
+
+Configuration
+-------------
+
+- redis: 
+  - host:
+  - port:
+
+- jenkins:
+  - websocket:
+    - port:
+	- udp:
+		- port:
+		- interval:
+		- consideredDownInterval:
+	- notifyUponRestart:
+
+- desc:
+	- location:
+	- users:
 
 TODO
 ----
-
-Add jenkins up/down support.
 
 Add multiple langages support.
 
