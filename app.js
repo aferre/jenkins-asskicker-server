@@ -5,10 +5,10 @@ var fs = require('fs');
 var speakerQueue = require('./lib/speakerQueue');
 var tts = require('node-google-tts');
 var jenkinsDiscover = require('./lib/jenkins-discover');
-var jenkinsListener = require('./lib/jenkins-listener');
 var nconf = require('nconf');
 var mdns = require('mdns');
-
+var HashMap = require('hashmap').HashMap;
+var jenkinsListeners = new HashMap();
 nconf.argv().env();
 
 nconf.add('config', {
@@ -90,10 +90,28 @@ function greetings(endCallback) {
     }
 }
 
-
-function jenkinsStatusChanged(jenkinsId, status) {
+function jenkinsStatusChanged(jsonData, status) {
     var S = require('string');
+    var jenkinsId = jsonData["server-id"][0];
     var str = S('' + jenkinsId.toString()).left(5).s;
+
+    var listener = jenkinsListeners.get(jenkinsId);
+    if (!listener) {
+        listener = require('./lib/jenkins-listener');
+        jenkinsListeners.set(jenkinsId, listener);
+    }
+    if (status === "up") {
+        var jenkinsConfig = nconf.get('jenkins');
+        listener.start({
+            callback: jenkinsNotif,
+            config: jenkinsConfig,
+            websocket: "true"
+        });
+    }
+    else if (status === "down") {
+        listener.stop();
+    }
+
     tts.retrieve('Jenkins instance ' + str + ' is ' + status + '!', 'en', retrievedTTS);
 }
 /*
@@ -115,9 +133,9 @@ function jenkinsNotif(notif, usersResponsible) {
 var browser = mdns.createBrowser(mdns.tcp('jenkins-kicker'));
 
 browser.on('serviceUp', function(service) {
-//    console.log("service up: ", service);
+    //    console.log("service up: ", service);
 
-  //  console.log("service up: ", JSON.parse(service.txtRecord.users));
+    //  console.log("service up: ", JSON.parse(service.txtRecord.users));
 });
 
 browser.on('serviceDown', function(service) {
@@ -128,15 +146,9 @@ browser.start();
 
 advertise();
 
-var jenkinsConfig = nconf.get('jenkins');
-
-jenkinsListener.start({
-    callback: jenkinsNotif,
-    config: jenkinsConfig,
-    websocket:"true"
-});
-
 jenkinsDiscover.start({
     jenkinsStatusChanged: jenkinsStatusChanged,
-    udp: "test"
+    udp: "test",
+    initDate: new Date(),
+    notifyUponRestart: nconf.get("jenkins").notifyUponRestart || false
 });
