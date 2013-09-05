@@ -3,14 +3,15 @@
 var opts;
 var HashMap = require('hashmap').HashMap;
 var discoveredInstances = new HashMap();
+var discoverInterval;
 
 var start = function start(options) {
     opts = options;
     broadcast();
-    setInterval(function () {
+    discoverInterval = setInterval(function() {
 
         var now = new Date();
-        discoveredInstances.forEach(function (value, key) {
+        discoveredInstances.forEach(function(value, key) {
             console.log(key + " : " + value);
             if (value.lastUp) {
                 var lastUp = new Date(value.lastUp);
@@ -27,16 +28,19 @@ var start = function start(options) {
 
 var stop = function stop() {
     //TODO handles options
+    if (discoverInterval) {
+        clearInterval(discoverInterval);
+    }
 };
 
 function broadcast() {
-    sendBroadcast('Long live Jenkins!', '255.255.255.255', 33848, function (err, data) {
+    sendBroadcast('Ping', '255.255.255.255', 33848, function(err, data) {
         if (err) {
             console.log(err);
         }
         else {
             var parseString = require('xml2js').parseString;
-            parseString(data, function (err, result) {
+            parseString(data, function(err, result) {
                 if (err) {
 
                 }
@@ -54,13 +58,13 @@ function sendBroadcast(message, host, port, cb) {
     var socket = require('dgram').createSocket('udp4'),
         buffer = new Buffer(message);
 
-    socket.on("error", function (err) {
+    socket.on("error", function(err) {
         cb(err);
     });
-    socket.on("message", function (data) {
+    socket.on("message", function(data) {
         cb(null, data);
     });
-    socket.send(buffer, 0, buffer.length, port, host, function (err, message) {
+    socket.send(buffer, 0, buffer.length, port, host, function(err, message) {
         if (err) {
             cb(err);
         }
