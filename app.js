@@ -2,10 +2,10 @@
 "use strict";
 
 var fs = require('fs');
-var speakerQueue = require('./speakerQueue');
+var speakerQueue = require('./lib/speakerQueue');
 var tts = require('node-google-tts');
-var jenkinsDiscover = require('./jenkins-discover');
-var jenkinsListener = require('./jenkins-listener');
+var jenkinsDiscover = require('./lib/jenkins-discover');
+var jenkinsListener = require('./lib/jenkins-listener');
 var nconf = require('nconf');
 var mdns = require('mdns');
 
