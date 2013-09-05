@@ -3,7 +3,7 @@
 
 var fs = require('fs');
 var speakerQueue = require('./speakerQueue');
-var tts = require('./tts');
+var tts = require('node-google-tts');
 var jenkinsDiscover = require('./jenkins-discover');
 var jenkinsListener = require('./jenkins-listener');
 var nconf = require('nconf');
@@ -132,7 +132,8 @@ var jenkinsConfig = nconf.get('jenkins');
 
 jenkinsListener.start({
     callback: jenkinsNotif,
-    config: jenkinsConfig
+    config: jenkinsConfig,
+    websocket:"true"
 });
 
 jenkinsDiscover.start({
