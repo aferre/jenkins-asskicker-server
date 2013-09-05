@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "redis-jsonify": "0.0.x",
-    "lame": "1.0.x",
+    "node-google-tts": "0.0.x",
     "sleep": "1.1.x",
     "speaker": "git://github.com/aferre/node-speaker.git#master",
     "redis": "0.8.x",
