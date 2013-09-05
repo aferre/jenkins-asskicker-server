@@ -1,7 +1,7 @@
 {
   "jenkins": {
     "websocket": {
-      "port": 10000
+      "port": 9000
     },
     "udp": {
       "port": 10000

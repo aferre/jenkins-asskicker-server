@@ -9,14 +9,12 @@ var start = function start(options) {
     opts = options;
     broadcast();
     discoverInterval = setInterval(function() {
-
         var now = new Date();
         discoveredInstances.forEach(function(value, key) {
             console.log(key + " : " + value);
             if (value.lastUp) {
                 var lastUp = new Date(value.lastUp);
                 if (now - lastUp > 20000) {
-
                     console.log("Server " + value.hudson["server-id"][0] + " is down.");
                     opts.onJenkinsDownCb(value.hudson);
                 }
@@ -81,7 +79,6 @@ function parseJenkins(jsonData) {
         opts.onJenkinsUpCb(jsonData.hudson);
     }
 }
-
 
 exports.start = start;
 exports.stop = stop;

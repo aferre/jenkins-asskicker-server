@@ -12,11 +12,11 @@ var start = function start(options) {
     opts = options;
     //TODO handles options
     if (opts.websocket) {
-        listener = require('jenkins-listener.ws');
-        listener.start(opts.websocket);
+        listener = require('./jenkins-listener.ws');
+        listener.start(opts.config.websocket);
     }
     else if (opts.udp) {
-        listener = require('jenkins-listener.udp');
+        listener = require('./jenkins-listener.udp');
         listener.start(opts.udp);
     }
     else if (opts.ext) {
