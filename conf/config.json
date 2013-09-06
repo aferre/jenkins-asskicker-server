@@ -6,7 +6,7 @@
         "udp": {
             "port": 10000,
             "interval": 10000,
-            "consideredDownInterval" : 19000,
+            "consideredDownInterval": 19000
         },
         "notifyUponRestart":true
     },
