@@ -32,6 +32,10 @@ function retrievedTTS(text, lang, data, redisUuid) {
         speakerQueue.postRedis("audio:data:tts:" + redisUuid);
     }
     else {
+        var tempDir = fs.existsSync("/tmp/mp3files/");
+        if (!tempDir) {
+            fs.mkdirSync("/tmp/mp3files/");
+        }
         fs.writeFile("/tmp/mp3files/" + rand + ".mp3", data, function(err) {
             if (err) {
                 console.log(err);
