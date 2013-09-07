@@ -94,7 +94,7 @@ function jenkinsStatusChanged(jsonData, status) {
 
 function jenkinsNotif(notif, usersResponsible) {
     if (notif.status === "FAILED") {
-        if (usersResponsible && usersResponsible != "undefined") {
+        if (usersResponsible && usersResponsible !== "undefined") {
             tts.retrieve(usersResponsible[0] + ', you failed... See project ' + notif.project, 'en', retrievedTTS);
         }
         else {
