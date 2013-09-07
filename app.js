@@ -81,7 +81,8 @@ function jenkinsStatusChanged(jsonData, status) {
         listener.start({
             callback: jenkinsNotif,
             config: jenkinsConfig,
-            websocket: "true"
+            websocket: "true",
+            jenkinsData: jsonData
         });
     }
     else if (status === "down") {
@@ -92,7 +93,17 @@ function jenkinsStatusChanged(jsonData, status) {
 }
 
 function jenkinsNotif(notif, usersResponsible) {
-    tts.retrieve(usersResponsible[0] + ' tu me decois.', 'fr', retrievedTTS);
+    if (notif.status === "FAILED") {
+        if (usersResponsible && usersResponsible != "undefined") {
+            tts.retrieve(usersResponsible[0] + ', you failed... See project ' + notif.project, 'en', retrievedTTS);
+        }
+        else {
+            tts.retrieve('Failed to build project ' + notif.project, 'en', retrievedTTS);
+        }
+    }
+    else if (notif.status === "SUCCESS") {
+        tts.retrieve('Successfully built project ' + notif.project, 'en', retrievedTTS);
+    }
 }
 
 mdns.start(nconf.get("desc"));
