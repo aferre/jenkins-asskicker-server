@@ -81,7 +81,7 @@ function jenkinsStatusChanged(jsonData, status) {
         listener.start({
             callback: jenkinsNotif,
             config: jenkinsConfig,
-            websocket: "true",
+            udp: "true",
             jenkinsData: jsonData
         });
     }
@@ -92,17 +92,17 @@ function jenkinsStatusChanged(jsonData, status) {
     tts.retrieve('Jenkins instance ' + str + ' is ' + status + '!', 'en', retrievedTTS);
 }
 
-function jenkinsNotif(notif, usersResponsible) {
-    if (notif.status === "FAILED") {
+function jenkinsNotif(notif, jobName, jobStatus, usersResponsible) {
+    if (jobStatus === "FAILED" || jobStatus === "FAILURE") {
         if (usersResponsible && usersResponsible !== "undefined") {
-            tts.retrieve(usersResponsible[0] + ', you failed... See project ' + notif.project, 'en', retrievedTTS);
+            tts.retrieve(usersResponsible[0] + ', you failed... See project ' + jobName, 'en', retrievedTTS);
         }
         else {
-            tts.retrieve('Failed to build project ' + notif.project, 'en', retrievedTTS);
+            tts.retrieve('Failed to build project ' + jobName, 'en', retrievedTTS);
         }
     }
-    else if (notif.status === "SUCCESS") {
-        tts.retrieve('Successfully built project ' + notif.project, 'en', retrievedTTS);
+    else if (jobStatus === "SUCCESS") {
+        tts.retrieve('Successfully built project ' + jobName, 'en', retrievedTTS);
     }
 }
 

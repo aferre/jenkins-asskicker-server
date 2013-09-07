@@ -4,7 +4,7 @@
             "port": 9000
         },
         "udp": {
-            "port": 10000,
+            "port": 2222,
             "interval": 10000,
             "consideredDownInterval": 19000
         },
