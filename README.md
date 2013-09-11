@@ -59,9 +59,9 @@ Configuration
 TODO
 ----
 
-Add multiple langages support.
+Provide route to upload custom mp3 files and desc.
 
-Provide route to upload custom mp3.
+Provide route to define phrases.
 
 Added mongo/couch layer for persisting data.
 
