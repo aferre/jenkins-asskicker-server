@@ -68,7 +68,7 @@ function greetings(endCallback) {
 
 function jenkinsStatusChanged(jsonData, status) {
     var S = require('string');
-    var jenkinsId = jsonData["server-id"][0];
+    var jenkinsId = jsonData["server-id"];
     var str = S('' + jenkinsId.toString()).left(5).s;
 
     var listener = jenkinsListeners.get(jenkinsId);
@@ -110,7 +110,7 @@ mdns.start(nconf.get("desc"));
 
 jenkinsDiscover.start({
     jenkinsStatusChanged: jenkinsStatusChanged,
-    udp: "test",
+    preferredDiscoveryImpl: "mdns",
     initDate: new Date(),
     notifyUponRestart: nconf.get("jenkins").notifyUponRestart || false,
     interval: nconf.get("jenkins").udp.interval
