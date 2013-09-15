@@ -10,15 +10,19 @@ Node.js based sound server for kicking developers asses.
 Install
 -------
 
+Dependencies: 
+
     sudo apt-get install redis-server libasound2-dev libavahi-compat-libdnssd-dev
+    
+Application:
+
     git clone https://github.com/aferre/jenkins-asskicker-server.git
     cd jenkins-asskicker-server
     npm install
     node app.js
 
-or using the npm modules in the npm registry
+	or using the npm module
 
-    sudo apt-get install redis-server libasound2-dev
     npm install -g jenkins-asskicker-server
     jenkins-asskicker-server
 
@@ -55,9 +59,9 @@ Configuration
 TODO
 ----
 
-Add multiple langages support.
+Provide route to upload custom mp3 files and desc.
 
-Provide route to upload custom mp3.
+Provide route to define phrases.
 
 Added mongo/couch layer for persisting data.
 
