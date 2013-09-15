@@ -63,6 +63,6 @@ Provide route to upload custom mp3 files and desc.
 
 Provide route to define phrases.
 
-Added mongo/couch layer for persisting data.
+Add mongo/couch layer for persisting data.
 
 Add per-job configuration.
