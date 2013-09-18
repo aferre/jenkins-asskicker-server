@@ -81,7 +81,7 @@ function jenkinsStatusChanged(jsonData, status) {
         listener.start({
             callback: jenkinsNotif,
             config: jenkinsConfig,
-            udp: "true",
+            websocket: "true",
             jenkinsData: jsonData
         });
     }
@@ -95,7 +95,11 @@ function jenkinsStatusChanged(jsonData, status) {
 function jenkinsNotif(notif, jobName, jobStatus, usersResponsible) {
     if (jobStatus === "FAILED" || jobStatus === "FAILURE") {
         if (usersResponsible && usersResponsible !== "undefined") {
-            tts.retrieve(usersResponsible[0] + ', you failed... See project ' + jobName, 'en', retrievedTTS);
+            var usersStr = "";
+            for (var i =0;i<usersResponsible.length;i++){
+                usersStr +=usersResponsible[i].fullName + ", ";
+            }
+            tts.retrieve(usersStr + 'you failed... See project ' + jobName, 'en', retrievedTTS);
         }
         else {
             tts.retrieve('Failed to build project ' + jobName, 'en', retrievedTTS);
@@ -110,7 +114,7 @@ mdns.start(nconf.get("desc"));
 
 jenkinsDiscover.start({
     jenkinsStatusChanged: jenkinsStatusChanged,
-    preferredDiscoveryImpl: "mdns",
+    preferredDiscoveryImpl: "udp",
     initDate: new Date(),
     notifyUponRestart: nconf.get("jenkins").notifyUponRestart || false,
     interval: nconf.get("jenkins").udp.interval
